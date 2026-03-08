@@ -1,9 +1,7 @@
 #include <iostream>
-#include <iomanip>
 #include <bitset>
 #include <cstring>
 #include <cstdlib>
-#include <cmath>
 #include <string>
 #include <cstdint>
 
@@ -16,54 +14,55 @@ bitset<32> floatBits(float value) {
 }
 
 string formatIEEE(float value) {
-    bitset<32> bits = floatBits(value);
-    string s = bits.to_string();
-
-    // sign exponent fraction
+    string s = floatBits(value).to_string();
     return s.substr(0, 1) + " " + s.substr(1, 8) + " " + s.substr(9, 23);
 }
 
 int unbiasedExponent(float value) {
-    bitset<32> bits = floatBits(value);
-    uint32_t raw = static_cast<uint32_t>(bits.to_ulong());
-
+    uint32_t raw;
+    memcpy(&raw, &value, sizeof(float));
     int exponentBits = (raw >> 23) & 0xFF;
-
-    // inputs are positive floats, and we assume
-    // regular normalized values as in class examples.
     return exponentBits - 127;
+}
+
+void printUsage(const char* programName) {
+    cout << "usage: " << programName << " loop_bound loop_counter" << endl;
+    cout << endl;
+    cout << "    loop_bound is a positive floating-point value" << endl;
+    cout << "    loop_counter is a positive floating-point value" << endl;
 }
 
 int main(int argc, char* argv[]) {
     if (argc != 3) {
-        cout << "Error: Incorrect number of arguments!" << endl;
+        printUsage(argv[0]);
         return 1;
     }
 
-    float bound = strtof(argv[1], nullptr);
-    float inc   = strtof(argv[2], nullptr);
+    float loopBound = strtof(argv[1], nullptr);
+    float loopCounter = strtof(argv[2], nullptr);
 
-    cout << "First value:  " << bound << endl;
-    cout << formatIEEE(bound) << endl;
+    cout << "loop bound:   " << formatIEEE(loopBound) << endl;
+    cout << "loop counter: " << formatIEEE(loopCounter) << endl;
+    cout << endl;
 
-    cout << "Second value: " << inc << endl;
-    cout << formatIEEE(inc) << endl;
-
-    int boundExp = unbiasedExponent(bound);
-    int incExp = unbiasedExponent(inc);
+    int boundExp = unbiasedExponent(loopBound);
+    int counterExp = unbiasedExponent(loopCounter);
 
     const int PRECISION_BITS = 24;
 
-    if ((boundExp - incExp) >= PRECISION_BITS) {
-        int thresholdExp = incExp + PRECISION_BITS;
-        float threshold = ldexp(1.0f, thresholdExp);  // 2^(thresholdExp)
+    if ((boundExp - counterExp) >= PRECISION_BITS) {
+        int thresholdExp = counterExp + PRECISION_BITS;
+
+        uint32_t thresholdRaw = static_cast<uint32_t>(thresholdExp + 127) << 23;
+        float threshold;
+        memcpy(&threshold, &thresholdRaw, sizeof(float));
 
         cout << "Warning: Possible overflow!" << endl;
         cout << "Overflow threshold:" << endl;
         cout << threshold << endl;
         cout << formatIEEE(threshold) << endl;
     } else {
-        cout << "No overflow!" << endl;
+        cout << "There is no overflow!" << endl;
     }
 
     return 0;
