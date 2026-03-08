@@ -1,142 +1,132 @@
 # overflow
 HW 2: Binary Representation, Floating-point Math, and Bit Manipulation
 
-# Floating-Point Overflow Detector
+# Floating-Point Overflow Checker
+
+## Team Members
+
 * Lester Hadley
 
 ---
 
-## Project Description
+# Project Description
 
-This program analyzes two floating-point numbers and determines whether a floating-point overflow (loss of precision) may occur when repeatedly incrementing a loop counter.
+This program analyzes two floating-point numbers and determines whether a **floating-point overflow (loss of precision)** may occur when repeatedly adding a loop counter to a loop bound.
 
-The program follows the IEEE-754 **single-precision (32-bit)** floating-point representation. It examines the exponent portions of the two values to determine whether an increment may be lost due to insufficient precision in the fraction (mantissa) bits.
+The program works with **IEEE-754 single-precision (32-bit) floating-point numbers**. It examines the **exponent fields** of the floating-point representation to determine if the increment becomes too small to affect the stored value due to the limited number of fraction bits.
 
-If an overflow condition is detected, the program outputs a warning message and calculates the **minimum threshold value** where the increment would no longer affect the stored floating-point value.
+If overflow may occur, the program computes the **minimum threshold value** where the increment will no longer change the loop variable.
 
----
+The program prints:
 
-## Features
-
-The program:
-
-1. Accepts **two floating-point command-line arguments**
-
-   * Loop bound
-   * Loop counter increment
-2. Prints the **IEEE-754 32-bit representation** of both inputs
-3. Determines whether **floating-point overflow is possible**
-4. If overflow may occur, computes and prints the **overflow threshold**
-5. Displays the threshold in both:
-
-   * Decimal floating-point notation
-   * IEEE-754 formatted bit representation
+* The IEEE-754 bit representation of the inputs
+* A warning if overflow may occur
+* The overflow threshold (decimal and bit representation)
 
 ---
 
-## Requirements
+# Files in Repository
 
-* C++ compiler (g++ recommended)
-* C++17 or later
-* Standard C++ libraries (`bitset`, `cstring`, `cmath`, `cstdint`)
+```
+overflow_checker/
+│
+├── overflow.cpp
+└── README.md
+```
 
 ---
 
-## How to Compile
+# Compilation
 
-Using **g++**:
+Compile the program using **g++**.
 
 ```bash
-g++ overflow.cpp -o overflow
+g++ -Wall -std=c++17 overflow.cpp -o overflow_checker
 ```
 
-Optional with warnings:
-
-```bash
-g++ -Wall -std=c++17 overflow.cpp -o overflow
-```
-
-This will produce the executable:
+This command creates the executable:
 
 ```
-overflow (Linux/macOS)
-overflow.exe (Windows)
+overflow_checker
+```
+
+or on Windows:
+
+```
+overflow_checker.exe
 ```
 
 ---
 
-## How to Run
+# Running the Program
 
 Run the program from the command line with **two floating-point arguments**:
 
-```bash
-./overflow <loop_bound> <increment>
+```
+overflow_checker <loop_bound> <loop_counter>
 ```
 
 Example:
 
-```bash
-./overflow 100000000 1
+```
+overflow_checker 1e+08 1.0
 ```
 
-or (Windows):
-
-```bash
-overflow 100000000 1
-```
-
----
-
-## Example Inputs
+Example output:
 
 ```
-overflow 100000000 1
-overflow 1024 1
-overflow 3.14 0.01
-overflow 0.314e+01 1
-```
+loop bound:   0 10011001 01111101011110000100000
+loop counter: 0 01111111 00000000000000000000000
 
----
-
-## Expected Output Behavior
-
-### Incorrect number of arguments
-
-```
-Error: Incorrect number of arguments!
-```
-
-### No overflow detected
-
-```
-No overflow!
-```
-
-### Overflow detected
-
-```
 Warning: Possible overflow!
 Overflow threshold:
-<threshold value>
-<threshold value in IEEE 754 bit format>
+1.67772e+07
+0 10010111 00000000000000000000000
 ```
 
 ---
 
-## Repository Contents
+# Incorrect Usage
+
+If the program is run with an incorrect number of arguments, it prints:
 
 ```
-overflow-detector/
-│
-├── overflow.cpp
-├── README.md
+usage: overflow_checker loop_bound loop_counter
+
+    loop_bound is a positive floating-point value
+    loop_counter is a positive floating-point value
+```
+
+Example:
+
+```
+overflow_checker
+```
+
+or
+
+```
+overflow_checker 17.0
 ```
 
 ---
 
-## Notes
+# How the Program Works
 
-This program determines overflow **without using brute force iteration**.
-Instead, it analyzes the **difference between the exponents** of the loop bound and increment values to determine when floating-point precision is exceeded.
+1. The program reads two floating-point numbers from the command line.
+2. Each value is converted into its **32-bit IEEE-754 representation** using bit manipulation.
+3. The **exponent values** are extracted and compared.
+4. If the exponent difference exceeds the **precision of the mantissa (24 bits)**, an overflow condition may occur.
+5. The program calculates the **threshold value** where the increment would no longer change the stored floating-point value.
 
-This approach demonstrates how floating-point numbers are stored in memory and highlights limitations of finite-precision arithmetic.
+---
+
+# Concepts Demonstrated
+
+This project demonstrates:
+
+* IEEE-754 floating-point representation
+* Bit manipulation in C++
+* Command-line argument handling
+* Floating-point precision limits
+* Efficient overflow detection without brute-force iteration
