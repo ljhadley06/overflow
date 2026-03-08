@@ -1,6 +1,5 @@
 # overflow
 HW 2: Binary Representation, Floating-point Math, and Bit Manipulation
-# Floating-Point Overflow Detector
 
 # Floating-Point Overflow Detector
 * Lester Hadley
